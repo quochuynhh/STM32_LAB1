@@ -91,50 +91,34 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
+  void display7SEG(int num) {
+        // Mã LED 7 đoạn dạng cathode chung (0 = bật, 1 = tắt)
+        uint8_t segNumber[10] = {
+            0xC0, // 0
+            0xF9, // 1
+            0xA4, // 2
+            0xB0, // 3
+            0x99, // 4
+            0x92, // 5
+            0x82, // 6
+            0xF8, // 7
+            0x80, // 8
+            0x90  // 9
+        };
+
+        // Lần lượt ghi tín hiệu ra 7 chân tương ứng A -> G
+        // Giả sử các chân nối với GPIOB PIN_0 đến PIN_6
+        for (int i = 0; i < 7; ++i)
+           HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0 << i, (segNumber[num] >> i) & 0x01 ? GPIO_PIN_SET : GPIO_PIN_RESET);
+    }
+  int counter =0;
   while (1)
   {
-	  // ==== Pha 1: Bộ 1 ĐỎ (3s), Bộ 2 XANH (5s) ====
-	  // ==== Pha 1: Bộ 1 ĐỎ (5s), Bộ 2 XANH (3s) ====
-	      HAL_GPIO_WritePin(GPIOA, LED_RED_Pin, GPIO_PIN_RESET);      // Bộ 1 đỏ sáng
-	      HAL_GPIO_WritePin(GPIOA, LED_YELLOW_Pin, GPIO_PIN_SET);     // Bộ 1 vàng tắt
-	      HAL_GPIO_WritePin(GPIOA, LED_GREEN_Pin, GPIO_PIN_SET);      // Bộ 1 xanh tắt
-
-	      HAL_GPIO_WritePin(GPIOA, LED_RED2_Pin, GPIO_PIN_SET);       // Bộ 2 đỏ tắt
-	      HAL_GPIO_WritePin(GPIOA, LED_YELLOW2_Pin, GPIO_PIN_SET);    // Bộ 2 vàng tắt
-	      HAL_GPIO_WritePin(GPIOA, LED_GREEN2_Pin, GPIO_PIN_RESET);   // Bộ 2 xanh sáng
-	      HAL_Delay(5000);
-
-	      // ==== Pha 2: Cả hai VÀNG (2s) ====
-	      HAL_GPIO_WritePin(GPIOA, LED_RED_Pin, GPIO_PIN_SET);        // Bộ 1 đỏ tắt
-	      HAL_GPIO_WritePin(GPIOA, LED_YELLOW_Pin, GPIO_PIN_RESET);   // Bộ 1 vàng sáng
-	      HAL_GPIO_WritePin(GPIOA, LED_GREEN_Pin, GPIO_PIN_SET);      // Bộ 1 xanh tắt
-
-	      HAL_GPIO_WritePin(GPIOA, LED_RED2_Pin, GPIO_PIN_SET);
-	      HAL_GPIO_WritePin(GPIOA, LED_YELLOW2_Pin, GPIO_PIN_RESET);  // Bộ 2 vàng sáng
-	      HAL_GPIO_WritePin(GPIOA, LED_GREEN2_Pin, GPIO_PIN_SET);
-	      HAL_Delay(2000);
-
-	      // ==== Pha 3: Bộ 1 XANH (3s), Bộ 2 ĐỎ (5s) ====
-	      HAL_GPIO_WritePin(GPIOA, LED_RED_Pin, GPIO_PIN_SET);
-	      HAL_GPIO_WritePin(GPIOA, LED_YELLOW_Pin, GPIO_PIN_SET);
-	      HAL_GPIO_WritePin(GPIOA, LED_GREEN_Pin, GPIO_PIN_RESET);    // Bộ 1 xanh sáng
-
-	      HAL_GPIO_WritePin(GPIOA, LED_RED2_Pin, GPIO_PIN_RESET);     // Bộ 2 đỏ sáng
-	      HAL_GPIO_WritePin(GPIOA, LED_YELLOW2_Pin, GPIO_PIN_SET);
-	      HAL_GPIO_WritePin(GPIOA, LED_GREEN2_Pin, GPIO_PIN_SET);
-	      HAL_Delay(3000);
-
-	      // ==== Pha 4: Cả hai VÀNG (2s) ====
-	      HAL_GPIO_WritePin(GPIOA, LED_RED_Pin, GPIO_PIN_SET);
-	      HAL_GPIO_WritePin(GPIOA, LED_YELLOW_Pin, GPIO_PIN_RESET);   // Bộ 1 vàng sáng
-	      HAL_GPIO_WritePin(GPIOA, LED_GREEN_Pin, GPIO_PIN_SET);
-
-	      HAL_GPIO_WritePin(GPIOA, LED_RED2_Pin, GPIO_PIN_SET);
-	      HAL_GPIO_WritePin(GPIOA, LED_YELLOW2_Pin, GPIO_PIN_RESET);  // Bộ 2 vàng sáng
-	      HAL_GPIO_WritePin(GPIOA, LED_GREEN2_Pin, GPIO_PIN_SET);
-	      HAL_Delay(2000);
     /* USER CODE END WHILE */
-
+	  if(counter >= 10) counter = 0;
+	   display7SEG(counter++);
+	   HAL_Delay(1000);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -185,20 +169,20 @@ static void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, LED_RED2_Pin|LED_YELLOW2_Pin|LED_GREEN2_Pin|LED_RED_Pin
-                          |LED_YELLOW_Pin|LED_GREEN_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3
+                          |GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : LED_RED2_Pin LED_YELLOW2_Pin LED_GREEN2_Pin LED_RED_Pin
-                           LED_YELLOW_Pin LED_GREEN_Pin */
-  GPIO_InitStruct.Pin = LED_RED2_Pin|LED_YELLOW2_Pin|LED_GREEN2_Pin|LED_RED_Pin
-                          |LED_YELLOW_Pin|LED_GREEN_Pin;
+  /*Configure GPIO pins : PB0 PB1 PB2 PB3
+                           PB4 PB5 PB6 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3
+                          |GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 }
 
